@@ -1,0 +1,74 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+.flutter-automation/
+.flutter_tool_state
+
+# Flutter generated files
+**/generated_plugin_registrant.dart
+
+# Android build files
+android/.gradle/
+android/local.properties
+android/key.properties
+android/captures/
+android/.cxx/
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# iOS / macOS build files
+ios/Flutter/.last_build_id
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Runner/GeneratedPluginRegistrant.*
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Signing keys and certificates
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Firebase / Google Cloud credentials
+google-services.json
+GoogleService-Info.plist
+service-account*.json
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+*.lockb
