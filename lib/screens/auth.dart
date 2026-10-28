@@ -1,6 +1,8 @@
+import 'package:chatapp/widgets/user_image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import "dart:io";
 
 final _firebase = FirebaseAuth.instance;
 
@@ -21,35 +23,55 @@ class _AuthScreenState extends State<AuthScreen> {
   var _islogin = true;
   var _enteredEmail = "";
   var _enteredPassword = "";
+  File? _selectedImage;
+  var _isUploading = false;
+  var _enteredUsername = "";
 
 
   void _submit () async {
    final isValid = _formKey.currentState!.validate();
    
-   if(!isValid){
+   if(!isValid || !_islogin && _selectedImage == null){
      return;
    }
 
+
    _formKey.currentState!.save();
 
+try{
+  setState(() {
+    _isUploading = true;
+  });
+  if(_islogin) {
+    final userCredentails = await _firebase.signInWithEmailAndPassword(
+        email: _enteredEmail,
+        password: _enteredPassword
+    );
+  }else{
+      final userCredentails = await  _firebase.createUserWithEmailAndPassword(
+          email: _enteredEmail,
+          password: _enteredPassword
+      );
+      final storageRef = FirebaseStorage.instance.ref().child("user_images").child("${userCredentails.user!.uid}.jpg");
 
-   if(_islogin) {
-   //   log in user
-   }else{
-     try{
-        final userCredentails = await  _firebase.createUserWithEmailAndPassword(
-            email: _enteredEmail,
-            password: _enteredPassword
-        );
-     } on FirebaseAuthException catch (error){
-        if(error.code == "email-already-in-use"){
-        //   ....
-        }
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message ?? "Authentication failed")));
-     }
+      await storageRef.putFile(_selectedImage!);
+     final imageURL = storageRef.getDowmloadURL();
 
-   }
+    await FirebaseFirestore.instance.collection("users").doc("userCredentails.user!.uid").set({
+       "username" : "",
+       "email" : _enteredEmail,
+       "image_URL" : imageURL
+     });
+}}on FirebaseAuthException catch (error){
+  if(error.code == "email-already-in-use"){
+    //   ....
+  }
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message ?? "Authentication failed")));
+  setState(() {
+    _isUploading = false;
+  });
+}
   }
 
   @override
@@ -76,9 +98,13 @@ class _AuthScreenState extends State<AuthScreen> {
                 child:  Padding(
                   padding: EdgeInsets.all(16),
                   child: Form(
+                    key: _formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if(!_islogin) UserImagePicker(onPickImage: (pickedImage) {
+                          _selectedImage = pickedImage;
+                        }),
                         TextFormField(
                           decoration: InputDecoration(
                             labelText: "Email Address"
@@ -94,6 +120,22 @@ class _AuthScreenState extends State<AuthScreen> {
                           },
                           onSaved: (value) {
                               _enteredEmail = value!;
+                          },
+                        ),
+                        if(!_islogin)
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: "Username",
+                          ),
+                          enableSuggestions: false,
+                          validator: (value) {
+                            if(value == null || value.isEmpty || value.trim().length < 4){
+                              return "Please enter a valid Username" ;
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            _enteredUsername = value!;
                           },
                         ),
                         TextFormField(
@@ -112,6 +154,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           },
                         ),
                         const SizedBox(height: 12,),
+                        if(_isUploading)
+                          const CircularProgressIndicator();
+                        if(!_isUploading)
                         ElevatedButton(
                             onPressed: _submit,
                             style: ElevatedButton.styleFrom(
@@ -119,6 +164,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             child: Text(_islogin? "Login" :"Signup")
                         ),
+                        if(!_isUploading)
                         TextButton(
                             onPressed: () {
                               setState(() {
