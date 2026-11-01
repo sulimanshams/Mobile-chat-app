@@ -31,6 +31,10 @@ class _NewMessageState extends State<NewMessage>{
     if(enteredMessage.trim().isEmpty){
       return;
     }
+
+
+
+
     FocusScope.of(context).unfocus();
 
  final user =FirebaseAuth.instance.currentUser!;
