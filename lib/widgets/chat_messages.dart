@@ -23,8 +23,16 @@ class ChatMessages extends StatelessWidget{
           }
             final loadedMessages = chatSnapshots.data!.decs;
 
-          return ListView.builder(itemCount: loadedMessages.length, itemBuilder: (ctx , index) => Text(
-            loadedMessages[index].data()["text"]
+          return ListView.builder(
+            padding: EdgeInsets.only(
+              bottom: 40,
+              right: 13,
+              left: 13,
+            ),
+              reverse: true,
+              itemCount: loadedMessages.length,
+              itemBuilder: (ctx , index) => Text(
+                     loadedMessages[index].data()["text"]
           ));
         }
     );
